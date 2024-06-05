@@ -77,21 +77,33 @@ function updateBlog(id, title, author, content) {
 }
 
 function deleteBlog(id) {
-  let result = confirm("Are you sure to delete");
+  let result = Notiflix;
   if (!result) return;
-  let lst = getBlog();
+  Notiflix.Confirm.show(
+    "Notiflix Confirm",
+    "Do you agree with me?",
+    "Yes",
+    "No",
+    function okCb() {
+     let lst = getBlog();
 
-  const items = lst.filter(x => x.id === id);
-  if (items.length == 0) {
-    console.log("no data found");
-    return;
-  }
+     const items = lst.filter((x) => x.id === id);
+     if (items.length == 0) {
+       console.log("no data found");
+       return;
+     }
 
-  lst = lst.filter(x => x.id !== id);
-  const jsonBLog = JSON.stringify(lst);
-  localStorage.setItem(tblBlog, jsonBLog);
-  successMessage("Delete Successfully");
-  getBlogTable();
+     lst = lst.filter((x) => x.id !== id);
+     const jsonBLog = JSON.stringify(lst);
+     localStorage.setItem(tblBlog, jsonBLog);
+     successMessage("Delete Successfully");
+     getBlogTable();
+    },
+    function cancelCb() {
+      errorMessage("try again");
+      ;
+    },
+  );
 }
 
 function uuidv() {
@@ -116,21 +128,39 @@ $("#btnSave").click(function () {
   const title = $("#textTitle").val();
   const author = $("#textAuthor").val();
   const content = $("#textContent").val();
+  if(!title || !author || !content) {
+            errorMessage("Required.");
+            return;}
+            Notiflix.Loading.dots();
+            setTimeout(() => {
+            Notiflix.Loading.remove();
 
   if (blogId === null) {
     createBlog(title, author, content);
+    successMessage("Successfully")
   } else {
     updateBlog(blogId, title, author, content);
     blogId = null;
+    successMessage('Update Success!');
   }
+  clearControls();
   getBlogTable();
-});
+},3000);})
 
 function successMessage(message) {
-  alert(message);
+  Swal.fire({
+    title: "Success",
+    text: message,
+    icon: "success",
+  });
+  
 }
 function errorMessage(message) {
-  alert(message);
+ Swal.fire({
+   title: "Error",
+   text: message,
+   icon: "error",
+ });
 }
 
 function clearControls() {
@@ -163,3 +193,4 @@ function getBlogTable() {
   });
   $("#tbody").html(htmlRows);
 }
+
